@@ -1,13 +1,13 @@
 function sum(value) {
+	if (!arguments.length) return 'Нет переданных значений';
+	
 	function inner(value) {
-		if (value === undefined) return inner.sum || 'Нет переданных значений';
-		if (!inner.sum) inner.sum = 0;
-
+		if (!arguments.length) return inner.sum;
 		inner.sum += value;
 		return inner;
 	}
-
-	return inner(value);
+	inner.sum = value;
+	return inner;
 }
 
 console.log(sum(1)(2)(3)());
