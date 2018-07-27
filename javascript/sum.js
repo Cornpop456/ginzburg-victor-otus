@@ -10,4 +10,3 @@ function sum(value) {
 	return inner;
 }
 
-console.log(sum(1)(2)(3)());
