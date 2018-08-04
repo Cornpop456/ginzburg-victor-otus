@@ -1,16 +1,35 @@
+async function asyncReduce(array, fn, initial) {
+    if (!(array instanceof Array)) {
+        throw new TypeError('Illegal first argument, (not an array)');
+    } else if (!(fn instanceof Function)) {
+        throw new TypeError('Illegal second argument, (not a function)');
+    }
+
+    let accum = initial;
+
+    for (let i = 0; i < array.length; i++) {
+        try {
+            accum = await fn(accum, array[i], i, array);
+        } catch (err) {
+            return Promise.reject(err);
+        }
+    }
+
+    return accum;
+}
+
+
 function promiseReduce(asyncFunctions, reduce, initialValue) {
-    return new Promise((resolve, reject) => {
-        const result = asyncFunctions.reduce(async (accum, current) => {
-            try {
-                const currentValue = await current(),
-                    accumValue = await accum;
-                return reduce(accumValue, currentValue);
+    return asyncReduce(asyncFunctions, async (accum, current) => {
+        try {
+            const promise = current();
 
-            } catch (err) {
-                return reject(err);
-            }
-        }, initialValue);
+            const accumValue = await accum;
+            const currentValue = await promise;
 
-        resolve(result);
-    });
+            return reduce(accumValue, currentValue);
+        } catch (err) {
+            throw err;
+        }
+    }, initialValue);
 }
