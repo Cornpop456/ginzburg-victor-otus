@@ -1,21 +1,16 @@
 function promiseReduce(asyncFunctions, reduce, initialValue) {
-	let accum = initialValue;
+    return new Promise((resolve, reject) => {
+        const result = asyncFunctions.reduce(async (accum, current) => {
+            try {
+                const currentValue = await current(),
+                    accumValue = await accum;
+                return reduce(accumValue, currentValue);
 
-	return new Promise((resolve, reject) => {
-		const processFunctions = (fns) => {
-			if (fns.length === 0) return resolve(accum);
+            } catch (err) {
+                return reject(err);
+            }
+        }, initialValue);
 
-			let currentFn = fns[0];
-			fns = fns.slice(1);
-			
-			return currentFn()
-				.then(res => {
-					accum = reduce(accum, res);
-					return fns;
-				})
-				.then(processFunctions);
-		}
-
-		processFunctions(asyncFunctions);
-	});
+        resolve(result);
+    });
 }
