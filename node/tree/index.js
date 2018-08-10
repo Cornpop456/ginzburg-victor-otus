@@ -1,7 +1,7 @@
 const fs = require('fs').promises;
 const path = require('path');
 
-const dirPath = process.argv[2] || 'foo/';
+const dirPath = process.argv[2];
 
 async function processDir(root, accum) {
   let content = null;
