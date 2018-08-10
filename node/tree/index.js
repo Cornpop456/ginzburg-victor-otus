@@ -1,0 +1,1 @@
+console.log("node-1", process.argv);
