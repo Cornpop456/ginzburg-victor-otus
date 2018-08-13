@@ -3,16 +3,14 @@ const path = require('path');
 
 const dirPath = process.argv[2];
 
-async function processDir(root, accum) {
+async function processDir(root, accum = Promise.resolve({ files: [], dirs: [root] })) {
   let content = null;
 
   try {
     content = await fs.readdir(root);
   } catch (err) {
-    throw 'Нет такой директории!';
+    throw new Error('Нет такой директории!');
   }
-
-  if (!content.length) return accum;
 
   return content.reduce(async (accum, file) => {
     const filePath = path.join(root, file);
@@ -22,15 +20,14 @@ async function processDir(root, accum) {
     if (!stats.isDirectory()) {
       accumValue.files.push(filePath);
       return accumValue;
-    } else {
-      accumValue.dirs.push(filePath);
-      return processDir(filePath, accumValue);
     }
+    accumValue.dirs.push(filePath);
+    return processDir(filePath, accumValue);
   }, accum);
 }
 
 function main() {
-  processDir(dirPath, Promise.resolve({ files: [], dirs: [dirPath] }))
+  processDir(dirPath)
     .then(json => JSON.stringify(json, null, 4))
     .then(console.log)
     .catch(console.log);
