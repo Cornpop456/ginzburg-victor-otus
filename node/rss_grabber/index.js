@@ -15,24 +15,37 @@ db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
   console.log('Connection opended\n');
   grab(RSS_URL)
-    .then(async data => {
-      let counter = 0;
+    .then(data => {
+      let counter = data.length;
+      let news = 0;
       for (let item of data) {
-        const res = await News.updateOne({ guid: item.guid }, item, {
+        News.updateOne({ guid: item.guid }, item, {
           upsert: true
-        });
+        })
+          .then(raw => {
+            counter -= 1;
 
-        if (res.upserted) {
-          console.log('--News was added to db--\n');
-          counter += 1;
-        }
+            if (raw.upserted) {
+              console.log('--News was added to db--\n');
+              news += 1;
+            }
+
+            if (counter === 0) {
+              console.log(news + ' news were added to db\n');
+              db.close();
+              console.log('Connection closed');
+            }
+          })
+          .catch(err => {
+            console.log(err + '\n');
+            db.close();
+            console.log('Connection closed');
+            process.exit(1);
+          });
       }
-
-      return counter;
     })
-    .then(counter => console.log(counter + ' news were added to db\n'))
-    .catch(console.log)
-    .finally(() => {
+    .catch(err => {
+      console.log(err + '\n');
       db.close();
       console.log('Connection closed');
     });
