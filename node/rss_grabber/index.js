@@ -21,7 +21,7 @@ db.once('open', function() {
     })
     .catch(err => {
       if (err.result && err.result.result && typeof err.result.result.nInserted === 'number') {
-        console.log(err.result.result.nInserted + ' news were saved to db to\n');
+        console.log(err.result.result.nInserted + ' news were saved to db\n');
       } else {
         console.log(err);
       }
