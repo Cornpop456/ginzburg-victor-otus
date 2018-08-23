@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
+const News = require('./news');
 const grab = require('./grab');
-const reducer = require('./reducer');
 const { RSS_URL, MONGO_URL } = require('./config');
 
 mongoose.connect(
@@ -9,12 +9,28 @@ mongoose.connect(
 );
 
 const db = mongoose.connection;
+
 db.on('error', console.error.bind(console, 'connection error:'));
+
 db.once('open', function() {
   console.log('Connection opended\n');
   grab(RSS_URL)
-    .then(data => data.reduce(reducer, Promise.resolve(0)))
-    .then(count => console.log(count + ' news were added to db\n'))
+    .then(async data => {
+      let counter = 0;
+      for (let item of data) {
+        const res = await News.updateOne({ guid: item.guid }, item, {
+          upsert: true
+        });
+
+        if (res.upserted) {
+          console.log('--News was added to db--\n');
+          counter += 1;
+        }
+      }
+
+      return counter;
+    })
+    .then(counter => console.log(counter + ' news were added to db\n'))
     .catch(console.log)
     .finally(() => {
       db.close();
