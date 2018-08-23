@@ -9,16 +9,14 @@ module.exports = async RSS_URL => {
   try {
     const feed = await parser.parseURL(RSS_URL);
 
-    const data = [];
-
-    feed.items.forEach(item => {
+    const data = feed.items.map(item => {
       const { isoDate } = item;
       item.isoDate = new Date(isoDate);
-      data.push(item);
+      return item;
     });
 
     return data;
   } catch (err) {
-    return err;
+    throw new Error('Произошла ошибка при парсинге RSS');
   }
 };

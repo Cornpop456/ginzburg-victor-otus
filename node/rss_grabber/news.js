@@ -5,7 +5,7 @@ const NewsSchema = new Schema({
   title: String,
   content: String,
   contentSnippet: String,
-  guid: String,
+  guid: { type: String, unique: true },
   pubDate: String,
   isoDate: Date
 });
