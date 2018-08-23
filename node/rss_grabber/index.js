@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const grab = require('./grab');
 const reducer = require('./reducer');
 const { RSS_URL, MONGO_URL } = require('./config');
-// const News = require('./news');
 
 mongoose.connect(
   MONGO_URL,
