@@ -11,8 +11,5 @@ test('Request to /saveFeed succeeded', () => {
     })
     .then(response => {
       expect(response.data.done).toBeTruthy();
-    })
-    .catch(error => {
-      console.log(error);
     });
 });
