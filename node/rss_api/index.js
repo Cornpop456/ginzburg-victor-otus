@@ -1,10 +1,14 @@
-const mongoose = require('mongoose');
 const express = require('express');
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+
 const { MONGO_URL } = require('./config');
-const insertRSS = require('./insert');
-const Feed = require('./feed');
+const { FEED } = require('./endpoints');
+const routes = require('./routes');
 
 const app = express();
+
+app.use(bodyParser.json());
 
 mongoose.connect(
   MONGO_URL,
@@ -18,37 +22,11 @@ db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
   console.log('Соединение с базой данных установлено');
 
-  app.get('/saveFeed', function(req, res) {
-    res.type('json');
-    const { rss_url } = req.query;
+  app.post(FEED.SAVE, routes.saveFeed);
 
-    insertRSS(rss_url)
-      .then(count => {
-        res.send(JSON.stringify({ result: { newsAdded: count }, done: true }, null, 4));
-      })
-      .catch(err => {
-        res.send(JSON.stringify({ error: err.message, done: false }, null, 4));
-      });
-  });
+  app.get(FEED.URLS, routes.getFeedUrls);
 
-  app.get('/feedUrls', function(req, res) {
-    res.type('json');
-    Feed.find()
-      .distinct('rssUrl')
-      .then(arr => res.send(JSON.stringify({ result: arr, done: true }, null, 4)))
-      .catch(err => {
-        res.send(JSON.stringify({ error: err.message, done: false }, null, 4));
-      });
-  });
-
-  app.get('/allFeeds', function(req, res) {
-    res.type('json');
-    Feed.find()
-      .then(arr => res.send(JSON.stringify({ result: arr, done: true }, null, 4)))
-      .catch(err => {
-        res.send(JSON.stringify({ error: err.message, done: false }, null, 4));
-      });
-  });
+  app.get(FEED.ALL, routes.getAllData);
 
   app.listen(3000, () => {
     console.log('Соединение с сервером установлено');
