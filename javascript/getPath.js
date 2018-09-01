@@ -6,7 +6,7 @@ function getPath(node, path = '') {
     return path.slice(0, -1);
   }
 
-  const nodeTagName = node.tagName.toLocaleLowerCase(),
+  const nodeTagName = node.tagName.toLowerCase(),
     sameTags = Array.from(node.parentNode.children).filter(elem => elem.tagName === node.tagName);
 
   if (sameTags.length === 1) {
