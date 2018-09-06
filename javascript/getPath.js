@@ -1,21 +1,22 @@
-function getPath(node, path = '') {
-  if (node.tagName === 'BODY') {
-    return path.slice(0, -1);
+function getPath(node, path = []) {
+  if (node.tagName === "BODY") {
+    path.push("body");
+    return path.reverse().join(">");
   } else if (node.id) {
-    path = '#' + node.id + '>' + path;
-    return path.slice(0, -1);
+    path.push(`#${node.id}`);
+    return path.reverse().join(">");
   }
 
-  const nodeTagName = node.tagName.toLowerCase(),
-    sameTags = Array.from(node.parentNode.children).filter(elem => elem.tagName === node.tagName);
+  const nodeTagName = node.tagName.toLowerCase();
+  node.parentNode.classList.add("parent");
+  const sameTags = node.parentNode.querySelectorAll(`.parent > ${nodeTagName}`);
+  node.parentNode.classList.remove("parent");
 
   if (sameTags.length === 1) {
-    path = nodeTagName + '>' + path;
+    path.push(nodeTagName);
   } else {
-    let tempNode = node,
-      pos = 1;
-    while ((tempNode = tempNode.previousElementSibling) !== null) pos++;
-    path = nodeTagName + `:nth-child(${pos})>` + path;
+    const position = Array.from(sameTags).indexOf(node) + 1;
+    path.push(`${nodeTagName}:nth-child(${position})`);
   }
 
   return getPath(node.parentElement, path);
