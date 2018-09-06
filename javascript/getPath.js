@@ -8,9 +8,7 @@ function getPath(node, path = []) {
   }
 
   const nodeTagName = node.tagName.toLowerCase();
-  node.parentNode.classList.add("parent");
-  const sameTags = node.parentNode.querySelectorAll(`.parent > ${nodeTagName}`);
-  node.parentNode.classList.remove("parent");
+  const sameTags = node.parentNode.querySelectorAll(`:scope > ${nodeTagName}`);
 
   if (sameTags.length === 1) {
     path.push(nodeTagName);
